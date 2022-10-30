@@ -1,0 +1,29 @@
+{
+  "name": "movies-explorer-api",
+  "version": "1.0.0",
+  "description": "Movies project backend",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "lint": "npx eslint .",
+    "dev": "nodemon app.js",
+    "test": "jest",
+    "engine": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bakhtiyark/movies-explorer-api.git"
+  },
+  "keywords": [
+    "movies",
+    "api",
+    "expressjs",
+    "validation"
+  ],
+  "author": "Bakhtiyar K.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bakhtiyark/movies-explorer-api/issues"
+  },
+  "homepage": "https://github.com/bakhtiyark/movies-explorer-api#readme"
+}
