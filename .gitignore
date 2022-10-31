@@ -1,0 +1,8 @@
+# logs
+
+# dependencies
+node_modules
+
+# rest
+.env
+.editorconfig
