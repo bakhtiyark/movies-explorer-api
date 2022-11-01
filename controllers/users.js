@@ -14,10 +14,9 @@ const ValidationError = require('../errors/ValidationError');
 // Коды
 const {
   REGISTERED_ERROR,
+  salt
 } = require('../utils/constants');
 
-// bcrypt-linked
-const salt = 10;
 
 // Получить данные всех юзеров
 const getUsers = (req, res, next) => {

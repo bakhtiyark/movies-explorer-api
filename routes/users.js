@@ -6,10 +6,10 @@ const {
   patchUser,
 } = require('../controllers/users');
 
-// Получение данных текущего
+// GET Получение данных текущего пользователя
 router.get('/me', getCurrentUser);
 
-// Обновление данных пользователя
+// PATCH Обновление данных пользователя
 router.patch('/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),

@@ -6,14 +6,14 @@ const NotFound = require('../errors/NotFound');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const ValidationError = require('../errors/ValidationError');
 
-//  Создание карты
+//  Создание тайла с фильмов
 const createMovie = (req, res, next) => {
   const { name, link } = req.body;
   const ownerId = req.user._id;
   Movie.create({ name, link, owner: ownerId })
     .then((movie) => {
       if (!movie) {
-        throw new NotFound('Карточка с указанным _id не найдена.');
+        throw new NotFound('Фильм с указанным _id не найден.');
       }
       res.send(movie);
     })
@@ -26,7 +26,7 @@ const createMovie = (req, res, next) => {
     });
 };
 
-//  Получить все карты
+//  Получить все фильмов
 const getMovies = (req, res, next) => {
   Movie.find({})
     .then((movies) => res.status(200).send(movies))
@@ -36,11 +36,11 @@ const getMovies = (req, res, next) => {
 //  Удалить карточку
 const deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
-    .orFail(new NotFound('Карточка не найдена'))
+    .orFail(new NotFound('Фильм не найдена'))
     .then((movie) => {
       if (req.user._id === movie.owner.toString()) {
         movie.delete()
-          .then(() => res.status(200).json({ message: 'Карточка удалена' }))
+          .then(() => res.status(200).json({ message: 'Фильм удален' }))
           .catch(next);
       } else { throw new UnauthorizedError('Удалять можно только свои карты.'); }
     })
@@ -59,11 +59,11 @@ const likeMovie = (req, res, next) => {
     req.params.movieId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  ).orFail(() => { throw new NotFound('Карточка с указанным ID не найдена'); })
+  ).orFail(() => { throw new NotFound('Фильм с указанным ID не найден'); })
     .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new NotFound('Карточка с указанным ID не найдена'));
+        next(new NotFound('Фильм с указанным ID не найден'));
       } else {
         next(err);
       }
@@ -75,11 +75,11 @@ const removeLike = (req, res, next) => {
     req.params.movieId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  ).orFail(() => { throw new NotFound('Карточка с указанным ID не найдена'); })
+  ).orFail(() => { throw new NotFound('Фильм с указанным ID не найден'); })
     .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new NotFound('Карточка с указанным ID не найдена'));
+        next(new NotFound('Фильм с указанным ID не найден'));
       } else {
         next(err);
       }

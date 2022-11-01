@@ -54,8 +54,6 @@ app.post('/signin', celebrate({
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(regexpLink),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
@@ -68,7 +66,7 @@ app.use(auth);
 // Роутинг
 
 app.use('/users', require('./routes/users'));
-app.use('/cards', require('./routes/cards'));
+app.use('/movies', require('./routes/movies'));
 
 // Заглушка
 app.use('/*', (req, res, next) => {

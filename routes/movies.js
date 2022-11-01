@@ -8,10 +8,10 @@ const {
   deleteMovie,
 } = require('../controllers/movies');
 
-// Получение данных всех карточек
+// GET Получение данных всех фильмов
 router.get('/', getMovies);
 
-// Создание карточки
+// POST Создание карточки
 router.post('/', celebrate({
   body: Joi.object().keys({
     country: Joi.string().min(2).max(30).required(),
@@ -28,7 +28,7 @@ router.post('/', celebrate({
   }),
 }), createMovie);
 
-// Удаление фильма
+// DELETE Удаление фильма
 router.delete('/:movieId', celebrate({
   params: Joi.object().keys({
     movieId: Joi.string().length(24).hex().required(),
