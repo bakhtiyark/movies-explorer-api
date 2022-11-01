@@ -1,5 +1,5 @@
 //  Импорт модели
-const Card = require('../models/card');
+const Movie = require('../models/movie');
 
 // Ошибки
 const NotFound = require('../errors/NotFound');
@@ -7,15 +7,15 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 const ValidationError = require('../errors/ValidationError');
 
 //  Создание карты
-const createCard = (req, res, next) => {
+const createMovie = (req, res, next) => {
   const { name, link } = req.body;
   const ownerId = req.user._id;
-  Card.create({ name, link, owner: ownerId })
-    .then((card) => {
-      if (!card) {
+  Movie.create({ name, link, owner: ownerId })
+    .then((movie) => {
+      if (!movie) {
         throw new NotFound('Карточка с указанным _id не найдена.');
       }
-      res.send(card);
+      res.send(movie);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -27,19 +27,19 @@ const createCard = (req, res, next) => {
 };
 
 //  Получить все карты
-const getCards = (req, res, next) => {
-  Card.find({})
-    .then((cards) => res.status(200).send(cards))
+const getMovies = (req, res, next) => {
+  Movie.find({})
+    .then((movies) => res.status(200).send(movies))
     .catch(next);
 };
 
 //  Удалить карточку
-const deleteCard = (req, res, next) => {
-  Card.findById(req.params.cardId)
+const deleteMovie = (req, res, next) => {
+  Movie.findById(req.params.movieId)
     .orFail(new NotFound('Карточка не найдена'))
-    .then((card) => {
-      if (req.user._id === card.owner.toString()) {
-        card.delete()
+    .then((movie) => {
+      if (req.user._id === movie.owner.toString()) {
+        movie.delete()
           .then(() => res.status(200).json({ message: 'Карточка удалена' }))
           .catch(next);
       } else { throw new UnauthorizedError('Удалять можно только свои карты.'); }
@@ -54,13 +54,13 @@ const deleteCard = (req, res, next) => {
 };
 
 // Поставить лайк карточке
-const likeCard = (req, res, next) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
+const likeMovie = (req, res, next) => {
+  Movie.findByIdAndUpdate(
+    req.params.movieId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   ).orFail(() => { throw new NotFound('Карточка с указанным ID не найдена'); })
-    .then((card) => res.send(card))
+    .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new NotFound('Карточка с указанным ID не найдена'));
@@ -71,12 +71,12 @@ const likeCard = (req, res, next) => {
 };
 // Удаления лайка с карты
 const removeLike = (req, res, next) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
+  Movie.findByIdAndUpdate(
+    req.params.movieId,
     { $pull: { likes: req.user._id } },
     { new: true },
   ).orFail(() => { throw new NotFound('Карточка с указанным ID не найдена'); })
-    .then((card) => res.send(card))
+    .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new NotFound('Карточка с указанным ID не найдена'));
@@ -87,9 +87,9 @@ const removeLike = (req, res, next) => {
 };
 
 module.exports = {
-  createCard,
-  getCards,
-  deleteCard,
-  likeCard,
+  createMovie,
+  getMovies,
+  deleteMovie,
+  likeMovie,
   removeLike,
 };
