@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 
 // Константы
 
-const { regexpLink } = require('./utils/constants');
+const { REGEXURL } = require('./utils/constants');
 
 const { login, createUser } = require('./controllers/users');
 
@@ -23,7 +23,7 @@ const { PORT = 3000 } = process.env;
 const NotFound = require('./errors/NotFound');
 
 // Подключение базы данных
-mongoose.connect('mongodb://localhost:27017/mestodb');
+mongoose.connect('mongodb://localhost:27017/moviesdb');
 
 const app = express();
 app.use(bodyParser.json());

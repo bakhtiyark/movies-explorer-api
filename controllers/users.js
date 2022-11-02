@@ -14,7 +14,7 @@ const ValidationError = require('../errors/ValidationError');
 // Коды
 const {
   REGISTERED_ERROR,
-  salt
+  SALT
 } = require('../utils/constants');
 
 
