@@ -1,5 +1,5 @@
 # logs
-
+*.log
 # dependencies
 node_modules
 
