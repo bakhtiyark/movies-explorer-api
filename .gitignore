@@ -1,0 +1,11 @@
+# logs
+
+# dependencies
+node_modules
+
+# rest
+.env
+.editorconfig
+
+# dumping ground and temporary files
+trash.js
