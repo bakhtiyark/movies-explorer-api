@@ -110,22 +110,6 @@ const patchUser = (req, res, next) => {
     });
 };
 
-// Обновление аватара
-const patchAvatar = (req, res, next) => {
-  const owner = req.user._id;
-  const { avatar } = req.body;
-  User.findByIdAndUpdate(owner, { avatar }, { new: true, runValidators: true })
-    .orFail(new NotFound('Пользователь не найден'))
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ValidationError('Некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
-};
-
 // Логин
 const login = (req, res, next) => {
   const { email, password } = req.body;
@@ -155,7 +139,6 @@ module.exports = {
   getUsers,
   getUser,
   patchUser,
-  patchAvatar,
   login,
   getCurrentUser,
 };

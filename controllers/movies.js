@@ -71,7 +71,7 @@ const getMovies = (req, res, next) => {
     .catch(next);
 };
 
-//  Удалить карточку
+//  Удалить тайл с фильмом
 const deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
     .orFail(new NotFound('Фильм не найдена'))
@@ -94,49 +94,8 @@ const deleteMovie = (req, res, next) => {
     });
 };
 
-// Поставить лайк карточке
-const likeMovie = (req, res, next) => {
-  Movie.findByIdAndUpdate(
-    req.params.movieId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true },
-  )
-    .orFail(() => {
-      throw new NotFound('Фильм с указанным ID не найден');
-    })
-    .then((movie) => res.send(movie))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new NotFound('Фильм с указанным ID не найден'));
-      } else {
-        next(err);
-      }
-    });
-};
-// Удаления лайка с карты
-const removeLike = (req, res, next) => {
-  Movie.findByIdAndUpdate(
-    req.params.movieId,
-    { $pull: { likes: req.user._id } },
-    { new: true },
-  )
-    .orFail(() => {
-      throw new NotFound('Фильм с указанным ID не найден');
-    })
-    .then((movie) => res.send(movie))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new NotFound('Фильм с указанным ID не найден'));
-      } else {
-        next(err);
-      }
-    });
-};
-
 module.exports = {
   createMovie,
   getMovies,
   deleteMovie,
-  likeMovie,
-  removeLike,
 };

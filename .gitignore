@@ -6,6 +6,7 @@ node_modules
 # rest
 .env
 .editorconfig
+.vscode
 
 # dumping ground and temporary files
-trash.js
+trash
