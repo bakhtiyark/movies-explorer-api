@@ -8,6 +8,10 @@ const SERVER_ERROR = 500;
 // Regex
 const REGEXURL = /^(https?:\/\/)?([\w]{1,32}\.[\w]{1,32})[^]*$/;
 
+/*
+const REGEXCYRILLIC = /[\а-я\sё]/gi
+*/
+
 // bcrypt-linked
 const SALT = 10;
 
@@ -18,5 +22,5 @@ module.exports = {
   REGISTERED_ERROR,
   UNAUTHORIZED_ERROR,
   REGEXURL,
-  SALT
+  SALT,
 };

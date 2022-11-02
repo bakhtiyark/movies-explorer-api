@@ -6,9 +6,6 @@ const { celebrate, errors, Joi } = require('celebrate');
 const bodyParser = require('body-parser');
 
 // Константы
-
-const { REGEXURL } = require('./utils/constants');
-
 const { login, createUser } = require('./controllers/users');
 
 // Middlewares
@@ -27,9 +24,11 @@ mongoose.connect('mongodb://localhost:27017/moviesdb');
 
 const app = express();
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: true,
-}));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  }),
+);
 
 app.use(cors);
 
@@ -43,21 +42,29 @@ app.get('/crash-test', () => {
 // signin
 app.use(requestLogger);
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
+app.post(
+  '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required(),
+    }),
   }),
-}), login);
+  login,
+);
 
 // reg
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
+app.post(
+  '/signup',
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().min(2).max(30).required(),
+      email: Joi.string().required().email(),
+      password: Joi.string().required(),
+    }),
   }),
-}), createUser);
+  createUser,
+);
 
 // Авторизация
 
