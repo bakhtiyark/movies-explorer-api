@@ -74,7 +74,7 @@ const getMovies = (req, res, next) => {
 //  Удалить тайл с фильмом
 const deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
-    .orFail(new NotFound('Фильм не найдена'))
+    .orFail(new NotFound('Фильм не найден'))
     .then((movie) => {
       if (req.user._id === movie.owner.toString()) {
         movie

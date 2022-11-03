@@ -10,16 +10,11 @@ const { JWT_SECRET, NODE_ENV } = process.env;
 const AuthorizationError = require('../errors/AuthorizationError');
 const NotFound = require('../errors/NotFound');
 const ValidationError = require('../errors/ValidationError');
+const RegisteredError = require('../errors/RegisteredError');
 
 // Коды
-const { REGISTERED_ERROR, SALT } = require('../utils/constants');
+const { SALT } = require('../utils/constants');
 
-// Получить данные всех юзеров
-const getUsers = (req, res, next) => {
-  User.find({})
-    .then((user) => res.send(user))
-    .catch(next);
-};
 // Создание юзера
 const createUser = (req, res, next) => {
   bcrypt
@@ -40,9 +35,7 @@ const createUser = (req, res, next) => {
         }))
         .catch((err) => {
           if (err.code === 11000) {
-            res
-              .status(REGISTERED_ERROR)
-              .json({ message: 'Пользователь уже существует' });
+            next(new RegisteredError('Пользователь уже зарегистрирован'));
           } else if (err.name === 'ValidationError') {
             next(new ValidationError('Неверный логин или пароль'));
           } else {
@@ -56,34 +49,13 @@ const createUser = (req, res, next) => {
 // GET ME
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new ValidationError('Пользователь не найден'))
+    .orFail(new NotFound('Пользователь не найден'))
     .then((user) => {
-      if (!user) {
-        throw new NotFound('Пользователь не найден');
-      }
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError('Некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-// Получение конкретного пользователя /users/:userId
-const getUser = (req, res, next) => {
-  User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        throw new NotFound('Пользователь не найден');
-      }
-      res.send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new NotFound('Пользователь не найден'));
       } else {
         next(err);
       }
@@ -99,7 +71,7 @@ const patchUser = (req, res, next) => {
     { name, about },
     { new: true, runValidators: true },
   )
-    .orFail(new ValidationError('Пользователь не найден'))
+    .orFail(new NotFound('Пользователь не найден'))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -136,8 +108,6 @@ const login = (req, res, next) => {
 
 module.exports = {
   createUser,
-  getUsers,
-  getUser,
   patchUser,
   login,
   getCurrentUser,
