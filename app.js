@@ -12,12 +12,11 @@ const { login, createUser } = require('./controllers/users');
 
 const errorHandler = require('./middlewares/error');
 const cors = require('./middlewares/cors');
-const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 // Порт
 const { PORT = 3000 } = process.env;
-const NotFound = require('./errors/NotFound');
+// const NotFound = require('./errors/NotFound');
 
 // Подключение базы данных
 mongoose.connect('mongodb://localhost:27017/moviesdb');
@@ -65,20 +64,6 @@ app.post(
   }),
   createUser,
 );
-
-// Авторизация
-
-app.use(auth);
-
-// Роутинг
-
-app.use('/users', require('./routes/users'));
-app.use('/movies', require('./routes/movies'));
-
-// Заглушка
-app.use('/*', (req, res, next) => {
-  next(new NotFound('Запрашиваемая страница не найдена'));
-});
 
 app.use(errorLogger);
 app.use(errors());
