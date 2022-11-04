@@ -58,7 +58,7 @@ const createMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError(`Переданы некорректные данные ${err}`));
+        next(new ValidationError(errorMessages.dataInvalid));
       } else {
         next(err);
       }
@@ -75,7 +75,7 @@ const getMovies = (req, res, next) => {
 //  Удалить тайл с фильмом
 const deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
-    .orFail(new NotFound('Фильм не найден'))
+    .orFail(new NotFound(errorMessages.movieNotFound))
     .then((movie) => {
       if (req.user._id === movie.owner.toString()) {
         movie
@@ -83,12 +83,12 @@ const deleteMovie = (req, res, next) => {
           .then(() => res.status(200).json({ message: 'Фильм удален' }))
           .catch(next);
       } else {
-        throw new UnauthorizedError('Удалять можно только свои карты.');
+        throw new UnauthorizedError(errorMessages.unauthorizedDeletion);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new NotFound('Некорректный ID'));
+        next(new NotFound(errorMessages.idInvalid));
       } else {
         next(err);
       }

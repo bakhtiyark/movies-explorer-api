@@ -6,7 +6,6 @@ const { errors } = require('celebrate');
 const bodyParser = require('body-parser');
 
 // Константы и утилиты
-const { login, createUser } = require('./controllers/users');
 const limiter = require('./utils/limiter');
 
 // Middlewares
@@ -14,8 +13,6 @@ const limiter = require('./utils/limiter');
 const errorHandler = require('./middlewares/error');
 const cors = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-
-const { validateLogin, validateRegistration } = require('./middlewares/validators');
 
 // Роуты
 const routes = require('./routes');
@@ -47,14 +44,9 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.use('/', routes);
-// signin
 app.use(requestLogger);
 
-app.post('/signin', validateLogin, login);
-
-// reg
-app.post('/signup', validateRegistration, createUser);
+app.use('/', routes);
 
 app.use(errorLogger);
 app.use(errors());

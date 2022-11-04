@@ -12,6 +12,8 @@ const NotFound = require('../errors/NotFound');
 const ValidationError = require('../errors/ValidationError');
 const RegisteredError = require('../errors/RegisteredError');
 
+const { errorMessages } = require('../utils/constants');
+
 // Коды
 const { SALT } = require('../utils/constants');
 
@@ -35,9 +37,9 @@ const createUser = (req, res, next) => {
         }))
         .catch((err) => {
           if (err.code === 11000) {
-            next(new RegisteredError('Пользователь уже зарегистрирован'));
+            next(new RegisteredError(errorMessages.dejaEn));
           } else if (err.name === 'ValidationError') {
-            next(new ValidationError('Неверный логин или пароль'));
+            next(new ValidationError(errorMessages.dataInvalid));
           } else {
             next(err);
           }
@@ -49,13 +51,13 @@ const createUser = (req, res, next) => {
 // GET ME
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new NotFound('Пользователь не найден'))
+    .orFail(new NotFound(errorMessages.idInvalid))
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Некорректные данные'));
+        next(new ValidationError(errorMessages.dataInvalid));
       } else {
         next(err);
       }
@@ -71,11 +73,11 @@ const patchUser = (req, res, next) => {
     { name, about },
     { new: true, runValidators: true },
   )
-    .orFail(new NotFound('Пользователь не найден'))
+    .orFail(new NotFound(errorMessages.userNotFound))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Некорректные данные'));
+        next(new ValidationError(errorMessages.dataInvalid));
       } else {
         next(err);
       }
@@ -89,11 +91,11 @@ const login = (req, res, next) => {
     .select('+password')
     .then((user) => {
       if (!user) {
-        return next(new AuthorizationError('Неверный логин или пароль'));
+        return next(new AuthorizationError(errorMessages.loginErr));
       }
       return bcrypt.compare(password, user.password, (err, isValidPassword) => {
         if (!isValidPassword) {
-          return next(new AuthorizationError('Неверный логин или пароль'));
+          return next(new AuthorizationError(errorMessages.loginErr));
         }
         const token = jwt.sign(
           { _id: user._id },
