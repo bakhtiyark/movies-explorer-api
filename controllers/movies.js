@@ -5,6 +5,7 @@ const Movie = require('../models/movie');
 const NotFound = require('../errors/NotFound');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const ValidationError = require('../errors/ValidationError');
+const { errorMessages } = require('../utils/constants');
 
 //  Создание тайла с фильмом
 const createMovie = (req, res, next) => {
@@ -38,7 +39,7 @@ const createMovie = (req, res, next) => {
   })
     .then((movie) => {
       if (!movie) {
-        throw new NotFound('Фильм с указанным _id не найден.');
+        throw new NotFound(errorMessages.movieNotFound);
       }
       res.send({
         country: movie.country,
