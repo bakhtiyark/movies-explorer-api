@@ -17,3 +17,5 @@ router.use('/movies', require('./movies'));
 router.use('/*', (req, res, next) => {
   next(new NotFound('Запрашиваемая страница не найдена'));
 });
+
+module.exports = router;

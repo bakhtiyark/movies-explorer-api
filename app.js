@@ -2,11 +2,12 @@ require('dotenv').config();
 // Модули
 const express = require('express');
 const mongoose = require('mongoose');
-const { celebrate, errors, Joi } = require('celebrate');
+const { errors } = require('celebrate');
 const bodyParser = require('body-parser');
 
-// Константы
+// Константы и утилиты
 const { login, createUser } = require('./controllers/users');
+const limiter = require('./utils/limiter');
 
 // Middlewares
 
@@ -14,8 +15,14 @@ const errorHandler = require('./middlewares/error');
 const cors = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
+const { validateLogin, validateRegistration } = require('./middlewares/validators');
+
+// Роуты
+const routes = require('./routes');
+
 // Порт
 const { PORT = 3000 } = process.env;
+
 // const NotFound = require('./errors/NotFound');
 
 // Подключение базы данных
@@ -31,6 +38,8 @@ app.use(
 
 app.use(cors);
 
+app.use(limiter);
+
 // Crash test
 app.get('/crash-test', () => {
   setTimeout(() => {
@@ -38,32 +47,14 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
+app.use('/', routes);
 // signin
 app.use(requestLogger);
 
-app.post(
-  '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required(),
-    }),
-  }),
-  login,
-);
+app.post('/signin', validateLogin, login);
 
 // reg
-app.post(
-  '/signup',
-  celebrate({
-    body: Joi.object().keys({
-      name: Joi.string().min(2).max(30).required(),
-      email: Joi.string().required().email(),
-      password: Joi.string().required(),
-    }),
-  }),
-  createUser,
-);
+app.post('/signup', validateRegistration, createUser);
 
 app.use(errorLogger);
 app.use(errors());
