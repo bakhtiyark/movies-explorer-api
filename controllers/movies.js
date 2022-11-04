@@ -34,7 +34,7 @@ const createMovie = (req, res, next) => {
     nameRU,
     nameEN,
     thumbnail,
-    owner: ownerId,
+    ownerId,
     movieId,
   })
     .then((movie) => {
@@ -42,6 +42,7 @@ const createMovie = (req, res, next) => {
         throw new NotFound(errorMessages.movieNotFound);
       }
       res.send({
+        _id: movie._id,
         country: movie.country,
         director: movie.director,
         duration: movie.duration,
@@ -52,8 +53,7 @@ const createMovie = (req, res, next) => {
         nameRU: movie.nameRU,
         nameEN: movie.nameEN,
         thumbnail: movie.thumbnail,
-        owner: movie.ownerId,
-        movieId: movie._id,
+        movieId: movie.movieid,
       });
     })
     .catch((err) => {
@@ -67,7 +67,7 @@ const createMovie = (req, res, next) => {
 
 //  Получить все фильмов
 const getMovies = (req, res, next) => {
-  Movie.find({})
+  Movie.find({ owner: req.user._id })
     .then((movies) => res.status(200).send(movies))
     .catch(next);
 };

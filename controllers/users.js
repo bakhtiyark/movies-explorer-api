@@ -56,8 +56,8 @@ const getCurrentUser = (req, res, next) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ValidationError(errorMessages.dataInvalid));
+      if (err.name === 'NotFound') {
+        next(new NotFound(errorMessages.userNotFound));
       } else {
         next(err);
       }
