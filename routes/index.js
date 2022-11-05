@@ -7,20 +7,17 @@ const NotFound = require('../errors/NotFound');
 
 const { login, createUser } = require('../controllers/users');
 
-// Авторизация
-
-router.use(auth);
-
-// Роутинг
-
-router.use('/users', require('./users'));
-router.use('/movies', require('./movies'));
-
 // Login
 router.post('/signin', validateLogin, login);
 
 // Registration
 router.post('/signup', validateRegistration, createUser);
+
+// Защищенные маршруты
+
+router.use(auth);
+router.use('/users', require('./users'));
+router.use('/movies', require('./movies'));
 
 // Заглушка
 router.use('/*', (req, res, next) => {

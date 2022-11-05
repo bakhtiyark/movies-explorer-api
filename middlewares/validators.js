@@ -3,8 +3,8 @@ const { REGEXURL } = require('../utils/constants');
 
 const validatePatchUser = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required,
-    email: Joi.string().email().required,
+    name: Joi.string().min(2).max(30).required(),
+    email: Joi.string().email().required(),
   }),
 });
 

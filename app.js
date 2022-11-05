@@ -4,9 +4,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const bodyParser = require('body-parser');
-
+const helmet = require('helmet');
 // Константы и утилиты
 const limiter = require('./utils/limiter');
+const { PORT, dbMovies } = require('./utils/config');
 
 // Middlewares
 
@@ -17,13 +18,10 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 // Роуты
 const routes = require('./routes');
 
-// Порт
-const { PORT = 3000 } = process.env;
-
 // const NotFound = require('./errors/NotFound');
 
 // Подключение базы данных
-mongoose.connect('mongodb://localhost:27017/moviesdb');
+mongoose.connect(dbMovies);
 
 const app = express();
 app.use(bodyParser.json());
@@ -32,7 +30,7 @@ app.use(
     extended: true,
   }),
 );
-
+app.use(helmet());
 app.use(cors);
 
 app.use(limiter);

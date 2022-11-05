@@ -66,11 +66,11 @@ const getCurrentUser = (req, res, next) => {
 
 // Обновление данных пользователя
 const patchUser = (req, res, next) => {
-  const { name, about } = req.body;
-  const ownerId = req.user._id;
+  const { name, email } = req.body;
+  const owner = req.user._id;
   User.findByIdAndUpdate(
-    ownerId,
-    { name, about },
+    owner,
+    { name, email },
     { new: true, runValidators: true },
   )
     .orFail(new NotFound(errorMessages.userNotFound))

@@ -22,7 +22,7 @@ const createMovie = (req, res, next) => {
     thumbnail,
     movieId,
   } = req.body;
-  const ownerId = req.user._id;
+  const owner = req.user._id;
   Movie.create({
     country,
     director,
@@ -34,7 +34,7 @@ const createMovie = (req, res, next) => {
     nameRU,
     nameEN,
     thumbnail,
-    ownerId,
+    owner,
     movieId,
   })
     .then((movie) => {
@@ -58,7 +58,7 @@ const createMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError(errorMessages.dataInvalid));
+        next(new ValidationError(errorMessages.dataInvalid + err));
       } else {
         next(err);
       }
