@@ -10,4 +10,4 @@
 
 - Frontend (Not yet available) : https://moviesexplorerbk.nomoredomains.icu
 - API : https://api.moviesexplorerbk.nomoredomains.icu
-- IP:
+- Public IP: 51.250.84.88 
