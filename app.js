@@ -18,8 +18,6 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 // Роуты
 const routes = require('./routes');
 
-// const NotFound = require('./errors/NotFound');
-
 // Подключение базы данных
 mongoose.connect(dbMovies);
 
