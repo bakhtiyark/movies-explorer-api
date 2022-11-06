@@ -93,17 +93,18 @@ const login = (req, res, next) => {
       if (!user) {
         return next(new AuthorizationError(errorMessages.loginErr));
       }
-      return bcrypt.compare(password, user.password, (err, isValidPassword) => {
-        if (!isValidPassword) {
-          return next(new AuthorizationError(errorMessages.loginErr));
-        }
-        const token = jwt.sign(
-          { _id: user._id },
-          `${NODE_ENV === 'production' ? JWT_SECRET : 'placeholder'}`,
-          { expiresIn: '7d' },
-        );
-        return res.status(200).send({ token });
-      });
+      return bcrypt.compare(password, user.password)
+        .then((isValidPassword) => {
+          if (!isValidPassword) {
+            return next(new AuthorizationError(errorMessages.loginErr));
+          }
+          const token = jwt.sign(
+            { _id: user._id },
+            `${NODE_ENV === 'production' ? JWT_SECRET : 'placeholder'}`,
+            { expiresIn: '7d' },
+          );
+          return res.status(200).send({ token });
+        });
     })
     .catch(next);
 };
