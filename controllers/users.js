@@ -12,7 +12,7 @@ const NotFound = require('../errors/NotFound');
 const ValidationError = require('../errors/ValidationError');
 const RegisteredError = require('../errors/RegisteredError');
 
-const { errorMessages } = require('../utils/constants');
+const { errorMessages, MONGO_DUPLICATE_KEY_ERROR } = require('../utils/constants');
 
 // Коды
 const { SALT } = require('../utils/constants');
@@ -36,7 +36,7 @@ const createUser = (req, res, next) => {
           email,
         }))
         .catch((err) => {
-          if (err.code === 11000) {
+          if (err.code === MONGO_DUPLICATE_KEY_ERROR) {
             next(new RegisteredError(errorMessages.dejaEn));
           } else if (err.name === 'ValidationError') {
             next(new ValidationError(errorMessages.dataInvalid));
@@ -51,16 +51,12 @@ const createUser = (req, res, next) => {
 // GET ME
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new NotFound(errorMessages.idInvalid))
+    .orFail(new NotFound(errorMessages.userNotFound))
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'NotFound') {
-        next(new NotFound(errorMessages.userNotFound));
-      } else {
-        next(err);
-      }
+      next(err);
     });
 };
 
@@ -78,6 +74,8 @@ const patchUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError(errorMessages.dataInvalid));
+      } else if (err.code === MONGO_DUPLICATE_KEY_ERROR) {
+        next(new RegisteredError(errorMessages.emailConflict));
       } else {
         next(err);
       }

@@ -5,7 +5,7 @@ const Movie = require('../models/movie');
 const NotFound = require('../errors/NotFound');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const ValidationError = require('../errors/ValidationError');
-const { errorMessages } = require('../utils/constants');
+const { errorMessages, statusMessages } = require('../utils/constants');
 
 //  Создание тайла с фильмом
 const createMovie = (req, res, next) => {
@@ -34,8 +34,8 @@ const createMovie = (req, res, next) => {
     nameRU,
     nameEN,
     thumbnail,
-    owner,
     movieId,
+    owner,
   })
     .then((movie) => {
       if (!movie) {
@@ -53,7 +53,7 @@ const createMovie = (req, res, next) => {
         nameRU: movie.nameRU,
         nameEN: movie.nameEN,
         thumbnail: movie.thumbnail,
-        movieId: movie.movieid,
+        movieId: movie.movieId,
       });
     })
     .catch((err) => {
@@ -80,7 +80,7 @@ const deleteMovie = (req, res, next) => {
       if (req.user._id === movie.owner.toString()) {
         movie
           .delete()
-          .then(() => res.status(200).json({ message: 'Фильм удален' }))
+          .then(() => res.status(200).json(statusMessages.movieDeleted))
           .catch(next);
       } else {
         throw new UnauthorizedError(errorMessages.unauthorizedDeletion);
@@ -88,7 +88,7 @@ const deleteMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new NotFound(errorMessages.idInvalid));
+        next(new ValidationError(errorMessages.idInvalid));
       } else {
         next(err);
       }

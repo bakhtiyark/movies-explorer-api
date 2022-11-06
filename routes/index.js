@@ -6,6 +6,7 @@ const { validateRegistration, validateLogin } = require('../middlewares/validato
 const NotFound = require('../errors/NotFound');
 
 const { login, createUser } = require('../controllers/users');
+const { errorMessages } = require('../utils/constants');
 
 // Login
 router.post('/signin', validateLogin, login);
@@ -21,7 +22,7 @@ router.use('/movies', require('./movies'));
 
 // Заглушка
 router.use('/*', (req, res, next) => {
-  next(new NotFound('Запрашиваемая страница не найдена'));
+  next(new NotFound(errorMessages.pageNotFound));
 });
 
 module.exports = router;
