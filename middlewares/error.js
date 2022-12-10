@@ -1,11 +1,9 @@
-const { isCelebrateError } = require('celebrate');
+const { errorMessages } = require('../utils/constants');
 
 module.exports = ((err, req, res, next) => {
   const { statusCode = 500, message } = err;
-  if (isCelebrateError(err)) {
-    res.status(statusCode).json(err);
-  } else {
-    res.status(statusCode).json({ message: statusCode === 500 ? 'Внутренняя ошибка сервера' : message });
-  }
+
+  res.status(statusCode).json({ message: statusCode === 500 ? errorMessages.serverErr : message });
+
   next();
 });

@@ -10,41 +10,36 @@ const { JWT_SECRET, NODE_ENV } = process.env;
 const AuthorizationError = require('../errors/AuthorizationError');
 const NotFound = require('../errors/NotFound');
 const ValidationError = require('../errors/ValidationError');
+const RegisteredError = require('../errors/RegisteredError');
+
+const { errorMessages, MONGO_DUPLICATE_KEY_ERROR } = require('../utils/constants');
 
 // Коды
-const {
-  REGISTERED_ERROR,
-  SALT
-} = require('../utils/constants');
+const { SALT } = require('../utils/constants');
 
-
-// Получить данные всех юзеров
-const getUsers = (req, res, next) => {
-  User.find({})
-    .then((user) => res.send(user))
-    .catch(next);
-};
 // Создание юзера
 const createUser = (req, res, next) => {
-  bcrypt.hash(req.body.password, salt)
+  bcrypt
+    .hash(req.body.password, SALT)
     .then((hash) => {
       User.create({
         name: req.body.name,
-        about: req.body.about,
-        avatar: req.body.avatar,
         email: req.body.email,
         password: hash,
       })
         .then(({
-          name, about, _id, avatar, createdAt, email,
+          name, _id, createdAt, email,
         }) => res.send({
-          name, about, _id, avatar, createdAt, email,
+          name,
+          _id,
+          createdAt,
+          email,
         }))
         .catch((err) => {
-          if (err.code === 11000) {
-            res.status(REGISTERED_ERROR).json({ message: 'Пользователь уже существует' });
+          if (err.code === MONGO_DUPLICATE_KEY_ERROR) {
+            next(new RegisteredError(errorMessages.dejaEn));
           } else if (err.name === 'ValidationError') {
-            next(new ValidationError('Неверный логин или пароль'));
+            next(new ValidationError(errorMessages.dataInvalid));
           } else {
             next(err);
           }
@@ -56,64 +51,31 @@ const createUser = (req, res, next) => {
 // GET ME
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new ValidationError('Пользователь не найден'))
+    .orFail(new NotFound(errorMessages.userNotFound))
     .then((user) => {
-      if (!user) {
-        throw new NotFound('Пользователь не найден');
-      }
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ValidationError('Некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-// Получение конкретного пользователя /users/:userId
-const getUser = (req, res, next) => {
-  User.findById(req.params.userId).then((user) => {
-    if (!user) {
-      throw new NotFound('Пользователь не найден');
-    }
-    res.send(user);
-  }).catch((err) => {
-    if (err.name === 'CastError') {
-      next(new NotFound('Пользователь не найден'));
-    } else {
       next(err);
-    }
-  });
+    });
 };
 
 // Обновление данных пользователя
 const patchUser = (req, res, next) => {
-  const { name, about } = req.body;
-  const ownerId = req.user._id;
-  User.findByIdAndUpdate(ownerId, { name, about }, { new: true, runValidators: true })
-    .orFail(new ValidationError('Пользователь не найден'))
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ValidationError('Некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-// Обновление аватара
-const patchAvatar = (req, res, next) => {
+  const { name, email } = req.body;
   const owner = req.user._id;
-  const { avatar } = req.body;
-  User.findByIdAndUpdate(owner, { avatar }, { new: true, runValidators: true })
-    .orFail(new NotFound('Пользователь не найден'))
+  User.findByIdAndUpdate(
+    owner,
+    { name, email },
+    { new: true, runValidators: true },
+  )
+    .orFail(new NotFound(errorMessages.userNotFound))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Некорректные данные'));
+        next(new ValidationError(errorMessages.dataInvalid));
+      } else if (err.code === MONGO_DUPLICATE_KEY_ERROR) {
+        next(new RegisteredError(errorMessages.emailConflict));
       } else {
         next(err);
       }
@@ -123,28 +85,31 @@ const patchAvatar = (req, res, next) => {
 // Логин
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findOne({ email }).select('+password')
+  return User.findOne({ email })
+    .select('+password')
     .then((user) => {
       if (!user) {
-        return next(new AuthorizationError('Неверный логин или пароль'));
+        return next(new AuthorizationError(errorMessages.loginErr));
       }
-      return bcrypt.compare(password, user.password, (err, isValidPassword) => {
-        if (!isValidPassword) {
-          return next(new AuthorizationError('Неверный логин или пароль'));
-        }
-        const token = jwt.sign({ _id: user._id }, `${NODE_ENV === 'production' ? JWT_SECRET : 'placeholder'}`, { expiresIn: '7d' });
-        return res.status(200).send({ token });
-      });
+      return bcrypt.compare(password, user.password)
+        .then((isValidPassword) => {
+          if (!isValidPassword) {
+            return next(new AuthorizationError(errorMessages.loginErr));
+          }
+          const token = jwt.sign(
+            { _id: user._id },
+            `${NODE_ENV === 'production' ? JWT_SECRET : 'placeholder'}`,
+            { expiresIn: '7d' },
+          );
+          return res.status(200).send({ token });
+        });
     })
     .catch(next);
 };
 
 module.exports = {
   createUser,
-  getUsers,
-  getUser,
   patchUser,
-  patchAvatar,
   login,
   getCurrentUser,
 };

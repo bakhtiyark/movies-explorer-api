@@ -1,8 +1,4 @@
-const allowedCors = ['http://localhost:3000',
-  'http://api.bakhtiyarkpr.nomoredomains.icu',
-  'http://bakhtiyarkpr.nomoredomains.icu',
-  'https://api.bakhtiyarkpr.nomoredomains.icu',
-  'https://bakhtiyarkpr.nomoredomains.icu'];
+const { allowedCors } = require('../utils/config');
 
 const cors = (req, res, next) => {
   const { method } = req;
